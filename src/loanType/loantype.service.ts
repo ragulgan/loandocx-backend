@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere, Not } from 'typeorm';
-import { Loantype } from './loantype.entity';
+import { Loantype } from './entities/loantype.entity';
 import { CreateLoantypeDto } from './dto/create-loantype.dto';
 import { UpdateLoantypeDto } from './dto/update-loantype.dto';
 

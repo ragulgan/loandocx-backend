@@ -2,12 +2,12 @@ import { Controller, Get, Post, Body, Param, Patch, Delete, Res, BadRequestExcep
 import { LoanCompanyDetailService } from './company_details.service';
 import { CreateLoanCompanyDetailsDto } from './dto/create-details.dto';
 import { UpdateLoanCompanyDetailsDto } from './dto/update-details.dto';
-import { ApiTags, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
 import { appConst } from '../libs/constant';
 import * as _ from 'lodash';
 import { AdminGuard } from 'src/auth/jwt-auth.guard';
-import { ApiCommonResponse } from 'src/Common/api-common-response.decorator';
+import { ApiCommonResponses, ApiCommonGetAllResponses, ApiCommonDeleteResponses } from 'src/Common/decorators/swagger-responses.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('loan-company-details')
@@ -22,7 +22,7 @@ export class LoanCompanyDetailController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Post()
-  @ApiCommonResponse({ successStatus: 201, successDescription: 'Created' })
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
   async create(@Body() dto: CreateLoanCompanyDetailsDto, @Res() res: Response) {
     try {
       const createdLoanCompany = await this.loanCompanyDetailService.create(dto);
@@ -51,21 +51,7 @@ export class LoanCompanyDetailController {
   @ApiQuery({ name: 'branch_name', required: false, description: 'Return Based on branch_name' })
   @ApiQuery({ name: 'email_id', required: false, description: 'Return Based on company_mail_id' })
   @Get()
-  @ApiResponse({
-    status: 200, description: 'Ok.',
-    schema: {
-      example: {
-        code: 0,
-        messageCode: 0,
-        data: {},
-        count: 0,
-        message: 'string',
-      }
-    }
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @ApiCommonGetAllResponses()
   async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
     try {
       const getLoanCompany = await this.loanCompanyDetailService.findAll(queryParams);
@@ -87,20 +73,7 @@ export class LoanCompanyDetailController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Get(':id')
-  @ApiResponse({
-    status: 200, description: 'Ok.',
-    schema: {
-      example: {
-        code: 0,
-        messageCode: 0,
-        data: {},
-        message: 'string',
-      }
-    }
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @ApiCommonResponses()
   async findOne(@Param('id') id: number, @Request() req, @Res() res: any) {
     try {
       const getLoanCompanyById = await this.loanCompanyDetailService.findOne(id)
@@ -120,21 +93,7 @@ export class LoanCompanyDetailController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Patch(':id')
-  @ApiResponse({
-    status: 200, description: 'Ok.',
-    schema: {
-      example: {
-        code: 0,
-        messageCode: 0,
-        data: {},
-        message: 'string',
-      }
-    }
-  })
-  @ApiResponse({ status: 201, description: 'Created.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
   async update(@Param('id') id: number, @Body() dto: UpdateLoanCompanyDetailsDto, @Res() res: any) {
     try {
       const updateLoanCompany = await this.loanCompanyDetailService.update(id, dto);
@@ -158,19 +117,7 @@ export class LoanCompanyDetailController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  @ApiResponse({
-    status: 200, description: 'Ok.',
-    schema: {
-      example: {
-        code: 0,
-        messageCode: 0,
-        message: 'string',
-      }
-    }
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @ApiCommonDeleteResponses()
   async remove(@Param('id') id: number, @Res() res: any) {
     try {
       const deletedLoanCompany = await this.loanCompanyDetailService.remove(id);

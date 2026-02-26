@@ -1,9 +1,10 @@
 import { Controller, Post, Body, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody } from '@nestjs/swagger';
 import { UserLoginDto } from './dto/login.dto';
 import { ResponseService } from '../base/controller';
 import { appConst } from '../libs/constant';
+import { ApiCommonResponsesLogin } from 'src/Common/decorators/swagger-responses.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('Auth')
@@ -16,25 +17,7 @@ export class AuthController {
 
   @Post('user')
   @ApiBody({ type: UserLoginDto })
-  @ApiResponse({ status: 200, description: 'Ok.',  
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-        data: {
-          id: "string",
-          userMobile: "string",
-          email: "string",
-          status: "string",
-          token: "string",
-        },
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 201, description: 'Created.'})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponsesLogin()
   async UserLogin(@Body() createUserDto: UserLoginDto, @Res() res: Response) {
     const result = await this.authService.userLogin(createUserDto);
     const screens = result && result.user.screens.map((screen: any) => ({

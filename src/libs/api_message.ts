@@ -56,5 +56,7 @@ export const apimsgconfig = {
         1036: 'Transaction updated successfully.',
         1037: 'Transaction deleted successfully.',
         1038: 'Transaction approved successfully.',
+
+        1039: 'Payment settled successfully.'
     }
 };

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere, Not } from 'typeorm';
-import { LoanDocCheckList } from './loandoc_checklist.entity';
+import { LoanDocCheckList } from './entities/loandoc_checklist.entity';
 import { CreateLoanDocCheckListDto } from './dto/create-loandoc.dto';
 import { UpdateLoanDocCheckListDto } from './dto/update-loandoc.dto';
 

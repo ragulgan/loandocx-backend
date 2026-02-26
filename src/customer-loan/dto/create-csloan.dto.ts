@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsEmail, IsDateString, IsNotEmpty, Length } from 'class-validator';
+import { IsString, IsNumber, IsEmail, IsDateString, IsNotEmpty, Length, IsOptional } from 'class-validator';
 
 export class CreateCustomerLoanDetailsDto {
   @ApiProperty()
@@ -14,7 +14,7 @@ export class CreateCustomerLoanDetailsDto {
 
   @ApiProperty()
   @IsString()
-  @Length(1, 100)
+  @IsOptional()
   upi_id: string;
 
   @ApiProperty()
@@ -33,6 +33,7 @@ export class CreateCustomerLoanDetailsDto {
 
   @ApiProperty()
   @IsEmail()
+  @IsOptional()
   email_id: string;
 
   @ApiProperty()
@@ -81,7 +82,7 @@ export class CreateCustomerLoanDetailsDto {
 
   @ApiProperty()
   @IsString()
-  @Length(1, 200)
+  @IsOptional()
   Loan_branch_address2: string;
 
   @ApiProperty()
@@ -91,15 +92,6 @@ export class CreateCustomerLoanDetailsDto {
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   Document_Stored_path: string;
-
-  @ApiProperty()
-  @IsString()
-  @Length(1, 64)
-  Device_ID: string;
-
-  @ApiProperty()
-  @IsString()
-  @Length(1, 20)
-  platform: string;
 }

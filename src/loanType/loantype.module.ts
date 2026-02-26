@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoantypeService } from './loantype.service';
 import { LoanTypeController } from './loantype.controller';
-import { Loantype } from './loantype.entity';
+import { Loantype } from './entities/loantype.entity';
 import { ResponseService } from '../base/controller';
 
 @Module({

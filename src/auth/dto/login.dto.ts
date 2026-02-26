@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 
 export class UserLoginDto {
     @IsNotEmpty()
@@ -15,4 +15,16 @@ export class UserLoginDto {
         required: true
     })
     readonly password: string;
+
+    @ApiProperty()
+    @IsString()
+    @Length(1, 100)
+    @IsOptional()
+    Device_ID: string;
+
+    @ApiProperty()
+    @IsString()
+    @Length(1, 100)
+    @IsOptional()
+    platform: string;
 }

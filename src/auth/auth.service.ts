@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as _ from 'lodash';
 import * as jwt from 'jsonwebtoken';
 import { UsersService } from '../users/users.service';
-import { User } from "../users/users.entity";
+import { User } from "../users/entities/users.entity";
 import { UserLoginDto } from './dto/login.dto';
 
 @Injectable()
