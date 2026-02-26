@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Loantype } from '../loanType/loantype.entity';
+import { Loantype } from 'src/loanType/entities/loantype.entity';
 
 @Entity('loandocx_loan_doc_checklist')
 export class LoanDocCheckList {

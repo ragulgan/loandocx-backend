@@ -1,18 +1,19 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere, Not } from 'typeorm';
-import { User } from './users.entity';
+import { Repository, Like, FindOptionsWhere, DataSource } from 'typeorm';
+import { User } from './entities/users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { Screen } from 'src/screen/screen.entity';
+import { Screen } from 'src/screen/entities/screen.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Screen) private screenRepo: Repository<Screen>,
+    private readonly dataSource: DataSource,
   ) { }
 
   async create(dto: CreateUserDto) {
@@ -131,6 +132,24 @@ export class UsersService {
     if (!isPasswordMatch) {
       console.log('Password does not match');
       return false;
+    }
+
+    if (user.user_type === 'AT') {
+
+      const deviceId = req.Device_ID ?? '';
+      const platform = req.platform ?? '';
+
+      await this.dataSource.query(
+        `
+      UPDATE loandocx_users_profile
+      SET Device_ID = ?, 
+          platform = ?
+      WHERE user_id = ?
+      AND (Device_ID IS NULL OR Device_ID = ''
+          OR platform IS NULL OR platform = '')
+      `,
+        [deviceId, platform, user.user_id]
+      );
     }
     delete user.user_pwd;
     const screens = await this.screenRepo.find({

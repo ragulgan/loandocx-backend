@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScreenService } from './screen.service';
 import { ScreenController } from './screen.controller';
-import { Screen } from './screen.entity';
+import { Screen } from './entities/screen.entity';
 import { ResponseService } from '../base/controller';
 
 @Module({

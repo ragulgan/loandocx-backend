@@ -1,14 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere, Not } from 'typeorm';
-import { Loantype } from './loantype.entity';
+import { Loantype } from './entities/loantype.entity';
 import { CreateLoantypeDto } from './dto/create-loantype.dto';
 import { UpdateLoantypeDto } from './dto/update-loantype.dto';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class LoantypeService {
   constructor(
     @InjectRepository(Loantype) private loanTypeRepo: Repository<Loantype>,
+    private readonly redisService: RedisService,
   ) { }
 
   async create(dto: CreateLoantypeDto) {
@@ -19,6 +21,17 @@ export class LoantypeService {
   async findAll(params: { limit?: number; skip?: number; status?: string, loan_name?: string }) {
     const { limit = 10, skip = 0, status, loan_name } = params || {};
 
+    //Create unique cache key
+    const cacheKey = `loanTypes:${limit}:${skip}:${status || 'all'}:${loan_name || 'all'}`;
+
+    //Check Redis first
+    const cachedData = await this.redisService.get(cacheKey);
+
+    if (cachedData) {
+      console.log("redis-server-cache-loan-type===>")
+      return JSON.parse(cachedData);
+    }
+    console.log("server-hit-loan-type===>")
     const where: FindOptionsWhere<Loantype> = {};
 
     if (status) {
@@ -35,8 +48,9 @@ export class LoantypeService {
       skip,
       order: { loan_id: 'DESC' },
     });
-
-    return { loantypeList, count };
+    const result = { loantypeList, count };
+    await this.redisService.set(cacheKey, JSON.stringify(result));
+    return result;
   }
 
   async findOne(loan_id: number) {

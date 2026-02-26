@@ -19,6 +19,7 @@ import { CustomerLoanDetailsModule } from './customer-loan/customer_loan.module'
 import { TransactionModule } from './transaction/transaction.module';
 import { AgentDayWiseBalanceModule } from './agent-daywise-balance/agent-daywise.module';
 import { CivilDayWiseBalanceModule } from './civil-daywise-balance/civil-daywise.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { CivilDayWiseBalanceModule } from './civil-daywise-balance/civil-daywise
     TransactionModule,
     AgentDayWiseBalanceModule,
     CivilDayWiseBalanceModule,
+    RedisModule
   ],
   controllers: [AppController],
   providers: [AppService],

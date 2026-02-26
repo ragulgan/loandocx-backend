@@ -10,8 +10,8 @@ import { JwtStrategy } from './jwt.strategy';
 import { ResponseService } from '../base/controller';
 import { UsersModule } from "../users/users.module";
 import { UsersService } from "../users/users.service";
-import { User } from '../users/users.entity';
-import { Screen } from 'src/screen/screen.entity';
+import { User } from '../users/entities/users.entity';
+import { Screen } from 'src/screen/entities/screen.entity';
 
 @Module({
   imports: [

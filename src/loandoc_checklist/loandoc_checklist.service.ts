@@ -1,14 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere, Not } from 'typeorm';
-import { LoanDocCheckList } from './loandoc_checklist.entity';
+import { LoanDocCheckList } from './entities/loandoc_checklist.entity';
 import { CreateLoanDocCheckListDto } from './dto/create-loandoc.dto';
 import { UpdateLoanDocCheckListDto } from './dto/update-loandoc.dto';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class LoanDocCheckListService {
   constructor(
     @InjectRepository(LoanDocCheckList) private loanDocCheckRepo: Repository<LoanDocCheckList>,
+    private readonly redisService: RedisService,
   ) { }
 
   async create(dto: CreateLoanDocCheckListDto) {
@@ -18,6 +20,17 @@ export class LoanDocCheckListService {
 
   async findAll(params: any) {
     const { limit = 10, skip = 0, loan_id} = params || {};
+    //Create unique cache key
+    const cacheKey = `loanDocsCheckList:${limit}:${skip}:${loan_id || 'all'}`;
+
+    //Check Redis first
+    const cachedData = await this.redisService.get(cacheKey);
+
+    if (cachedData) {
+      console.log("redis-server-cache-doc-checklist===>", loan_id)
+      return JSON.parse(cachedData);
+    }
+    console.log("server-hit-doc-checklist===>", loan_id)
 
     const where: FindOptionsWhere<LoanDocCheckList> = {};
 
@@ -32,8 +45,9 @@ export class LoanDocCheckListService {
       order: { id: 'DESC' },
       relations: ['loan'],
     });
-
-    return { loanDocCheckList, count };
+    const result = { loanDocCheckList, count };
+    await this.redisService.set(cacheKey, JSON.stringify(result));
+    return result;
   }
 
   async findOne(id: number) {

@@ -1,5 +1,5 @@
-import { Transaction } from 'src/transaction/transaction.entity';
-import { User } from 'src/users/users.entity';
+import { Transaction } from 'src/transaction/entities/transaction.entity';
+import { User } from 'src/users/entities/users.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('loandocx_customers_loan_details')
@@ -69,12 +69,6 @@ export class CustomerLoanDetails {
 
   @Column({ length: 100 })
   Document_Stored_path: string;
-
-  @Column({ length: 64 })
-  Device_ID: string;
-
-  @Column({ length: 20 })
-  platform: string;
 
   @OneToOne(() => Transaction, (tx) => tx.customerLoan)
   @JoinColumn({ name: 'transaction_id' })

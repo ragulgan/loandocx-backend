@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { LoanDocCheckList } from '../loandoc_checklist/loandoc_checklist.entity';
+import { LoanDocCheckList } from 'src/loandoc_checklist/entities/loandoc_checklist.entity';
 
 @Entity('loandocx_loan_types')
 export class Loantype {

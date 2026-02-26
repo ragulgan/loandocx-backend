@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
-import { Transaction } from '../transaction/transaction.entity';
+import { Transaction } from '../../transaction/entities/transaction.entity';
 import * as bcrypt from 'bcrypt';
 import { CustomerLoanDetails } from 'src/customer-loan/entities/customer_loan.entity';
 import { DaywiseAgentBalance } from 'src/agent-daywise-balance/entities/agent_balance.entity';
@@ -63,6 +63,12 @@ export class User {
 
   @Column({ type: 'char', length: 1 })
   user_active: string;
+
+  @Column({ length: 64 })
+  Device_ID: string;
+
+  @Column({ length: 20 })
+  platform: string;
 
   @BeforeInsert()
   @BeforeUpdate()

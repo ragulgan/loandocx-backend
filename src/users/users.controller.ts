@@ -1,14 +1,14 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Res, BadRequestException, Query, Request, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Res, BadRequestException, Query, Request, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
 import { appConst } from '../libs/constant';
 import * as _ from 'lodash';
 import { AdminGuard, JwtAuthGuard, AgentGuard } from 'src/auth/jwt-auth.guard';
-import { verifyAndExtractToken } from '../utill/utill';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ApiCommonDeleteResponses, ApiCommonGetAllResponses, ApiCommonResponses } from 'src/Common/decorators/swagger-responses.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('users')
@@ -22,19 +22,7 @@ export class UsersController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Post()
-  @ApiResponse({ status: 200, description: 'Ok.',  
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 201, description: 'Created.'})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
   async create(@Body() dto: CreateUserDto, @Res() res: Response) {
     try {
       const createdUser = await this.usersService.create(dto);
@@ -69,19 +57,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post('change-password')
-  @ApiResponse({ status: 200, description: 'Ok.',  
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 201, description: 'Created.'})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
   async updatePassword(@Body() dto: ChangePasswordDto, @Request() req: any, @Res() res: any) {
     try {
       const updateUserPassword = await this.usersService.updatePassword(dto.userId, dto.userType, dto);
@@ -111,19 +87,7 @@ export class UsersController {
   @ApiQuery({ name: 'mobile_number', required: false, description: 'mobile_number' })
   @ApiQuery({ name: 'email_id', required: false, description: 'email_id' })
   @Get()
-  @ApiResponse({ status: 200, description: 'Ok.', 
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      count: 0,
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonGetAllResponses()
   async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
     try {
       const getUser = await this.usersService.findAll(queryParams);
@@ -145,18 +109,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get(':id')
-  @ApiResponse({ status: 200, description: 'Ok.', 
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses()
   async findOne(@Param('id') id: string, @Request() req, @Res() res: any) {
     try {
       const getUserById = await this.usersService.findOne(id)
@@ -176,18 +129,7 @@ export class UsersController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Get('admin/users-by-role/:type')
-  @ApiResponse({ status: 200, description: 'Ok.', 
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses()
   async findByRoleType(@Param('type') type: string, @Request() req, @Res() res: any) {
     try {
       const getUserByRole = await this.usersService.findByUserRoleType(type)
@@ -207,19 +149,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch(':id')
-  @ApiResponse({ status: 200, description: 'Ok.',  
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 201, description: 'Created.'})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
   async update(@Param('id') id: string, @Body() dto: UpdateUserDto, @Res() res: any) {
     try {
       const updateUser = await this.usersService.update(id, dto);
@@ -253,17 +183,7 @@ export class UsersController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  @ApiResponse({ status: 200, description: 'Ok.',  
-  schema: {
-  example: {
-    code: 0,
-    messageCode: 0,
-    message: 'string',
-  }
-}})
-@ApiResponse({ status: 401, description: 'Unauthorized.'})
-@ApiResponse({ status: 403, description: 'Forbidden.'})
-@ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonDeleteResponses()
   async remove(@Param('id') id: string, @Res() res: any) {
     try {
       const deletedUser = await this.usersService.remove(id);

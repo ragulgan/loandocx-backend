@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from 'src/users/users.entity';
+import { User } from 'src/users/entities/users.entity';
 
 @Entity('loandocx_daywise_civil_user_balance')
 export class DaywiseCivilBalance {

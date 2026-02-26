@@ -2,11 +2,12 @@ import { Controller, Get, Post, Body, Param, Patch, Delete, Res, BadRequestExcep
 import { LoantypeService } from './loantype.service';
 import { CreateLoantypeDto } from './dto/create-loantype.dto';
 import { UpdateLoantypeDto } from './dto/update-loantype.dto';
-import { ApiTags, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
 import { appConst } from '../libs/constant';
 import * as _ from 'lodash';
 import { AdminGuard, JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiCommonResponses, ApiCommonGetAllResponses, ApiCommonDeleteResponses } from 'src/Common/decorators/swagger-responses.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('loan-types')
@@ -20,19 +21,7 @@ export class LoanTypeController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Post()
-  @ApiResponse({ status: 200, description: 'Ok.',  
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 201, description: 'Created.'})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
   async create(@Body() dto: CreateLoantypeDto, @Res() res: Response) {
     try {
       const createdUser = await this.loanTypeService.create(dto);
@@ -61,19 +50,7 @@ export class LoanTypeController {
   @ApiQuery({ name: 'status', required: false, description: 'Return Based on status' })
   @ApiQuery({ name: 'loan_name', required: false, description: 'Return Based on loan type' })
   @Get()
-  @ApiResponse({ status: 200, description: 'Ok.', 
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      count: 0,
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonGetAllResponses()
   async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
     try {
       const getUser = await this.loanTypeService.findAll(queryParams);
@@ -95,18 +72,7 @@ export class LoanTypeController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Get(':id')
-  @ApiResponse({ status: 200, description: 'Ok.', 
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses()
   async findOne(@Param('id') id: number, @Request() req, @Res() res: any) {
     try {
       const getUserById = await this.loanTypeService.findOne(id)
@@ -126,19 +92,7 @@ export class LoanTypeController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Patch(':id')
-  @ApiResponse({ status: 200, description: 'Ok.',  
-    schema: {
-    example: {
-      code: 0,
-      messageCode: 0,
-      data: {},
-      message: 'string',
-    }
-  }})
-  @ApiResponse({ status: 201, description: 'Created.'})
-  @ApiResponse({ status: 401, description: 'Unauthorized.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.'})
-  @ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
   async update(@Param('id') id: number, @Body() dto: UpdateLoantypeDto, @Res() res: any) {
     try {
       const updateUser = await this.loanTypeService.update(id, dto);
@@ -162,17 +116,7 @@ export class LoanTypeController {
   @UseGuards(AdminGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  @ApiResponse({ status: 200, description: 'Ok.',  
-  schema: {
-  example: {
-    code: 0,
-    messageCode: 0,
-    message: 'string',
-  }
-}})
-@ApiResponse({ status: 401, description: 'Unauthorized.'})
-@ApiResponse({ status: 403, description: 'Forbidden.'})
-@ApiResponse({ status: 404, description: 'Not Found.'})
+  @ApiCommonDeleteResponses()
   async remove(@Param('id') id: number, @Res() res: any) {
     try {
       const deletedUser = await this.loanTypeService.remove(id);

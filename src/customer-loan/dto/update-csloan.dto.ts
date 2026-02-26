@@ -93,14 +93,4 @@ export class UpdateCustomerLoanDetailsDto {
   @IsString()
   @Length(1, 100)
   Document_Stored_path: string;
-
-  @ApiProperty()
-  @IsString()
-  @Length(1, 64)
-  Device_ID: string;
-
-  @ApiProperty()
-  @IsString()
-  @Length(1, 20)
-  platform: string;
 }
