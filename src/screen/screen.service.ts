@@ -18,8 +18,9 @@ export class ScreenService {
   }
 
 
-  async findAll(params: { limit?: number; skip?: number; status?: string }) {
-    const { limit = 10, skip = 0, status } = params || {};
+  async findAll(params: { limit?: number; page?: number; status?: string }) {
+    const { limit = 10, page = 1, status } = params || {};
+    const skip = (page - 1) * limit;
 
     const where: FindOptionsWhere<Screen> = {};
 
@@ -30,7 +31,7 @@ export class ScreenService {
     const [screenList, count] = await this.screenRepo.findAndCount({
       where,
       take: limit,
-      skip,
+      skip: skip,
       order: { screen_id: 'DESC' }
     });
 

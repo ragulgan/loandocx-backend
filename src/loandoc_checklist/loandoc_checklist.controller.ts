@@ -4,10 +4,11 @@ import { CreateLoanDocCheckListDto } from './dto/create-loandoc.dto';
 import { UpdateLoanDocCheckListDto } from './dto/update-loandoc.dto';
 import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
-import { appConst } from '../libs/constant';
+import { appConst, USER_TYPE } from '../libs/constant';
 import * as _ from 'lodash';
-import { AdminGuard, JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard } from 'src/auth/jwt-auth.guard';
 import { ApiCommonResponses, ApiCommonGetAllResponses, ApiCommonDeleteResponses } from 'src/Common/decorators/swagger-responses.decorator';
+import { Roles } from 'src/role/roles.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('loan-doc-checklist')
@@ -18,7 +19,8 @@ export class LoanDocCheckListController {
     private readonly responseService: ResponseService,
   ) { }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Post()
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -43,14 +45,15 @@ export class LoanDocCheckListController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.AGENT)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'loan_id', required: false, description: 'Return Based on loan_id' })
   @Get()
   @ApiCommonGetAllResponses()
-  async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
+  async findAll(@Query() queryParams: { limit?: number; page?: number }, @Res() res: any) {
     try {
       const getLoanDoc = await this.loandocCheckListService.findAll(queryParams);
       if (!_.isEmpty(getLoanDoc)) {
@@ -68,7 +71,8 @@ export class LoanDocCheckListController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Get(':id')
   @ApiCommonResponses()
@@ -88,7 +92,8 @@ export class LoanDocCheckListController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Patch(':id')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -112,7 +117,8 @@ export class LoanDocCheckListController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Delete(':id')
   @ApiCommonDeleteResponses()

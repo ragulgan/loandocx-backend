@@ -16,8 +16,9 @@ export class LoantypeService {
     return await this.loanTypeRepo.save(user);
   }
 
-  async findAll(params: { limit?: number; skip?: number; status?: string, loan_name?: string }) {
-    const { limit = 10, skip = 0, status, loan_name } = params || {};
+  async findAll(params: { limit?: number; page?: number; status?: string, loan_name?: string }) {
+    const { limit = 10, page = 1, status, loan_name } = params || {};
+    const skip = (page - 1) * limit;
 
     const where: FindOptionsWhere<Loantype> = {};
 
@@ -32,7 +33,7 @@ export class LoantypeService {
     const [loantypeList, count] = await this.loanTypeRepo.findAndCount({
       where,
       take: limit,
-      skip,
+      skip: skip,
       order: { loan_id: 'DESC' },
     });
 

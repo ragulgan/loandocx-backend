@@ -4,11 +4,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
-import { appConst } from '../libs/constant';
+import { appConst, USER_TYPE } from '../libs/constant';
 import * as _ from 'lodash';
-import { AdminGuard, JwtAuthGuard, AgentGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard } from 'src/auth/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ApiCommonDeleteResponses, ApiCommonGetAllResponses, ApiCommonResponses } from 'src/Common/decorators/swagger-responses.decorator';
+import { Roles } from 'src/role/roles.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('users')
@@ -19,7 +20,8 @@ export class UsersController {
     private readonly responseService: ResponseService,
   ) { }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Post()
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -78,7 +80,8 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, })
   @ApiQuery({ name: 'limit', required: false, })
@@ -88,7 +91,7 @@ export class UsersController {
   @ApiQuery({ name: 'email_id', required: false, description: 'email_id' })
   @Get()
   @ApiCommonGetAllResponses()
-  async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
+  async findAll(@Query() queryParams: { limit?: number; page?: number }, @Res() res: any) {
     try {
       const getUser = await this.usersService.findAll(queryParams);
       if (!_.isEmpty(getUser)) {
@@ -126,7 +129,8 @@ export class UsersController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Get('admin/users-by-role/:type')
   @ApiCommonResponses()
@@ -146,7 +150,8 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Patch(':id')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -180,7 +185,8 @@ export class UsersController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Delete(':id')
   @ApiCommonDeleteResponses()

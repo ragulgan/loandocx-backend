@@ -17,7 +17,10 @@ export class LoanCompanyDetailService {
   }
 
     async findAll(params: any) {
-        const { limit = 10, skip = 0, company_name, bank_name, branch_name, email_id } = params || {};
+        const { limit = 10, page = 1, company_name, bank_name, branch_name, email_id } = params || {};
+        params.limit = Number(limit);
+        params.page = Number(page);
+        const skip = (page - 1) * limit;
 
         let where: FindOptionsWhere<LoanCompanyDetails> | FindOptionsWhere<LoanCompanyDetails>[] = {};
 
@@ -58,7 +61,7 @@ export class LoanCompanyDetailService {
         const [loanCompanyList, count] = await this.loanCompanyRepo.findAndCount({
             where,
             take: limit,
-            skip,
+            skip: skip,
             order: { id: 'DESC' }
         });
 

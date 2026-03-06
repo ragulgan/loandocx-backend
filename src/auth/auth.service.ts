@@ -35,8 +35,8 @@ export class AuthService {
         return user;
     }
 
-    async validateUserByEmail(email: string): Promise<User> {
-        const user = await this.userService.findByEmail(email);
+    async validateUserById(user_id: string): Promise<User> {
+        const user = await this.userService.findByUserId(user_id);
         if (!user) {
             throw new NotAcceptableException('Could not find the user');
         }
@@ -55,11 +55,12 @@ export class AuthService {
 
     async userGeneratePayload(userData: any) {
         return {
+            sub: userData.user_id,
             user_id: userData.user_id,
             user_type: userData.user_type,
-            user_name: userData.user_name,
-            mobile_number: userData.mobile_number,
-            email_id: userData.email_id
+            // user_name: userData.user_name,
+            // mobile_number: userData.mobile_number,
+            // email_id: userData.email_id
         }
     }
 }

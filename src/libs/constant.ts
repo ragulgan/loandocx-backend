@@ -22,3 +22,11 @@ export const appConst = {
       MSG: 'ok'
     }
   };
+
+export const USER_TYPE = {
+  ADMIN: 'AD',
+  AGENT: 'AT',
+  LEGAL_USER: 'LU',
+  LEGAL_HEAD: 'LH',
+  CIVIL_USER: 'CU'
+}

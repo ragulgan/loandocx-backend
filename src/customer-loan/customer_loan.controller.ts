@@ -4,9 +4,9 @@ import { CreateCustomerLoanDetailsDto } from './dto/create-csloan.dto';
 import { UpdateCustomerLoanDetailsDto } from './dto/update-csloan.dto';
 import { ApiTags, ApiQuery, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
-import { appConst } from '../libs/constant';
+import { appConst, USER_TYPE } from '../libs/constant';
 import * as _ from 'lodash';
-import { AdminGuard, JwtAuthGuard, AgentGuard, CivilUserGuard, LegalUserGuard, LegalHeadGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard } from 'src/auth/jwt-auth.guard';
 import { AdminApproveDto } from './dto/admin-approve.dto';
 import { CivilApproveDto } from './dto/civile-approve.dto';
 import { LegalTeamApproveDto } from './dto/legal-team-approve';
@@ -17,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from './s3.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ApiCommonResponses, ApiCommonGetAllResponses } from 'src/Common/decorators/swagger-responses.decorator';
+import { Roles } from 'src/role/roles.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('customer-loan-details')
@@ -28,7 +29,8 @@ export class CustomerLoanDetailController {
     private readonly s3Service: S3Service,
   ) { }
 
-  @UseGuards(AgentGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.AGENT)
   @ApiBearerAuth()
   @Post('agent/loans/submit')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -57,7 +59,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Post('admin/approve-transaction')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -82,7 +85,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(CivilUserGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.CIVIL_USER)
   @ApiBearerAuth()
   @Post('civil/submit-report')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -107,7 +111,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(LegalUserGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.LEGAL_USER)
   @ApiBearerAuth()
   @Post('legal/submit-report')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -132,7 +137,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(LegalHeadGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.LEGAL_HEAD)
   @ApiBearerAuth()
   @Post('legal-head/submit-completion')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -157,7 +163,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Post('admin/update-payout-status')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -183,7 +190,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AgentGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.AGENT)
   @ApiBearerAuth()
   @Post('agent/upload-single-doc')
   @UseInterceptors(FileInterceptor('file'))
@@ -208,7 +216,8 @@ export class CustomerLoanDetailController {
     return this.customerLoanDetailsService.uploadSingleDoc(dto, file);
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -232,7 +241,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AgentGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.AGENT)
   @ApiBearerAuth()
   @Get('agent/loans/track/:query')
   @ApiCommonResponses()
@@ -253,7 +263,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.AGENT, USER_TYPE.CIVIL_USER, USER_TYPE.LEGAL_USER, USER_TYPE.LEGAL_HEAD)
   @ApiBearerAuth()
   @Get('earnings/balance/:userId/:userType')
   @ApiCommonResponses()
@@ -274,7 +285,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AgentGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.AGENT)
   @ApiBearerAuth()
   @Get('agent/fetch-customer-details')
   @ApiCommonResponses()
@@ -301,7 +313,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(CivilUserGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.CIVIL_USER)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -325,7 +338,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(LegalUserGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.LEGAL_USER)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -349,7 +363,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(LegalHeadGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.LEGAL_HEAD)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -373,7 +388,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -400,7 +416,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'userType', required: false, description: 'Return based on user type AT | LU | LH | CU' })
   @ApiQuery({ name: 'userId', required: false, description: 'Return based on user id' })
@@ -427,7 +444,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Get('admin/docs/allowed/:id')
   @ApiCommonResponses()
@@ -453,7 +471,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.LEGAL_USER, USER_TYPE.CIVIL_USER, USER_TYPE.LEGAL_HEAD)
   @ApiBearerAuth()
   @Get('legal/civil/docs/allowed/:txnId/:userType')
   @ApiCommonResponses()
@@ -477,7 +496,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Get('admin/dashboard')
   @ApiCommonResponses()
@@ -502,7 +522,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Get('admin/customer-lookup')
   @ApiCommonResponses()
@@ -529,7 +550,8 @@ export class CustomerLoanDetailController {
   }
 }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -555,7 +577,8 @@ export class CustomerLoanDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })

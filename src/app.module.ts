@@ -1,13 +1,11 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ServeStaticModule } from '@nestjs/serve-static';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerMiddleware } from './config/logger';
-import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ScreenModule } from './screen/screen.module';
@@ -23,7 +21,6 @@ import { CivilDayWiseBalanceModule } from './civil-daywise-balance/civil-daywise
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
@@ -44,7 +41,6 @@ import { CivilDayWiseBalanceModule } from './civil-daywise-balance/civil-daywise
       },
     }),
     ScheduleModule.forRoot(),
-    // ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'static'), }),
     AuthModule,
     UsersModule,
     ScreenModule,

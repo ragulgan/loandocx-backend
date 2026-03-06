@@ -4,10 +4,11 @@ import { CreateProcessingFeesDto } from './dto/create.dto';
 import { UpdateProcessingFeesDto } from './dto/update.dto';
 import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
-import { appConst } from '../libs/constant';
+import { appConst, USER_TYPE } from '../libs/constant';
 import * as _ from 'lodash';
-import { AdminGuard, JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard } from 'src/auth/jwt-auth.guard';
 import { ApiCommonResponses, ApiCommonGetAllResponses, ApiCommonDeleteResponses } from 'src/Common/decorators/swagger-responses.decorator';
+import { Roles } from 'src/role/roles.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('loan-processing-fees')
@@ -18,39 +19,41 @@ export class ProcessingFeesController {
     private readonly responseService: ResponseService,
   ) { }
 
-    @UseGuards(AdminGuard)
-    @ApiBearerAuth()
-    @Post()
-    @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
-    async create(@Body() dto: CreateProcessingFeesDto, @Res() res: Response) {
-      try {
-        const createdUser = await this.loanProcessingService.create(dto);
-        if (createdUser) {
-          this.responseService.sendResponse({}, res, SUCCESS.CODE, {
-            code: '1028',
-            data: {
-              id: (createdUser as any).id,
-              created_at: (createdUser as any).created_at,
-            }
-          }, '1028');
-        }
-        else {
-          this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
-        }
-      } catch (e) {
-        console.log('test============>', e)
-        throw new BadRequestException();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
+  @ApiBearerAuth()
+  @Post()
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
+  async create(@Body() dto: CreateProcessingFeesDto, @Res() res: Response) {
+    try {
+      const createdUser = await this.loanProcessingService.create(dto);
+      if (createdUser) {
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, {
+          code: '1028',
+          data: {
+            id: (createdUser as any).id,
+            created_at: (createdUser as any).created_at,
+          }
+        }, '1028');
       }
+      else {
+        this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
+      }
+    } catch (e) {
+      console.log('test============>', e)
+      throw new BadRequestException();
     }
+  }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, })
   @ApiQuery({ name: 'limit', required: false, })
   @ApiQuery({ name: 'from_loan_amount', required: false, description: 'Return Based on loan amount' })
   @Get()
   @ApiCommonGetAllResponses()
-  async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
+  async findAll(@Query() queryParams: { limit?: number; page?: number }, @Res() res: any) {
     try {
       const getUser = await this.loanProcessingService.findAll(queryParams);
       if (!_.isEmpty(getUser)) {
@@ -68,7 +71,8 @@ export class ProcessingFeesController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.AGENT)
   @ApiBearerAuth()
   @ApiQuery({ name: 'from_loan_amount', required: true, description: 'Loan amount' })
   @Get('processing-fee')
@@ -84,72 +88,75 @@ export class ProcessingFeesController {
         code: '1003',
         data: { processing_fees: processingFee },
       }, '1003');
-    } catch(e) {
+    } catch (e) {
       console.log('processing_fees===>', e);
       throw new BadRequestException();
     }
   }
 
 
-    @UseGuards(AdminGuard)
-    @ApiBearerAuth()
-    @Get(':id')
-    @ApiCommonResponses()
-    async findOne(@Param('id') id: number, @Request() req, @Res() res: any) {
-      try {
-        const getUserById = await this.loanProcessingService.findOne(id)
-        if (!_.isEmpty(getUserById)) {
-          this.responseService.sendResponse({}, res, SUCCESS.CODE, {
-            code: '1003',
-            data: getUserById
-          }, '1003');
-        } else {
-          this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1004' }, '1004');
-        }
-      } catch {
-        throw new BadRequestException();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
+  @ApiBearerAuth()
+  @Get(':id')
+  @ApiCommonResponses()
+  async findOne(@Param('id') id: number, @Request() req, @Res() res: any) {
+    try {
+      const getUserById = await this.loanProcessingService.findOne(id)
+      if (!_.isEmpty(getUserById)) {
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, {
+          code: '1003',
+          data: getUserById
+        }, '1003');
+      } else {
+        this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1004' }, '1004');
       }
+    } catch {
+      throw new BadRequestException();
     }
+  }
 
-    @UseGuards(AdminGuard)
-    @ApiBearerAuth()
-    @Patch(':id')
-    @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
-    async update(@Param('id') id: number, @Body() dto: UpdateProcessingFeesDto, @Res() res: any) {
-      try {
-        const updateUser = await this.loanProcessingService.update(id, dto);
-        if (updateUser) {
-          this.responseService.sendResponse({}, res, SUCCESS.CODE, {
-            code: '1029',
-            data: {
-              id: (updateUser as any).id,
-              updated_at: (updateUser as any).updated_at,
-            }
-          }, '1029');
-        } else {
-          this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
-        }
-      } catch (e) {
-        console.log('test============>', e)
-        throw new BadRequestException();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
+  @ApiBearerAuth()
+  @Patch(':id')
+  @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
+  async update(@Param('id') id: number, @Body() dto: UpdateProcessingFeesDto, @Res() res: any) {
+    try {
+      const updateUser = await this.loanProcessingService.update(id, dto);
+      if (updateUser) {
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, {
+          code: '1029',
+          data: {
+            id: (updateUser as any).id,
+            updated_at: (updateUser as any).updated_at,
+          }
+        }, '1029');
+      } else {
+        this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
       }
+    } catch (e) {
+      console.log('test============>', e)
+      throw new BadRequestException();
     }
+  }
 
-    @UseGuards(AdminGuard)
-    @ApiBearerAuth()
-    @Delete(':id')
-    @ApiCommonDeleteResponses()
-    async remove(@Param('id') id: number, @Res() res: any) {
-      try {
-        const deletedUser = await this.loanProcessingService.remove(id);
-        if (deletedUser) {
-          this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1030', data: { id: (deletedUser as any).id } }, '1030');
-        }
-        else {
-          this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
-        }
-      } catch {
-        throw new BadRequestException();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
+  @ApiBearerAuth()
+  @Delete(':id')
+  @ApiCommonDeleteResponses()
+  async remove(@Param('id') id: number, @Res() res: any) {
+    try {
+      const deletedUser = await this.loanProcessingService.remove(id);
+      if (deletedUser) {
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1030', data: { id: (deletedUser as any).id } }, '1030');
       }
+      else {
+        this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
+      }
+    } catch {
+      throw new BadRequestException();
     }
+  }
 }

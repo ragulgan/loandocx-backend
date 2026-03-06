@@ -4,10 +4,11 @@ import { CreateLoanCompanyDetailsDto } from './dto/create-details.dto';
 import { UpdateLoanCompanyDetailsDto } from './dto/update-details.dto';
 import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
-import { appConst } from '../libs/constant';
+import { appConst, USER_TYPE } from '../libs/constant';
 import * as _ from 'lodash';
-import { AdminGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard } from 'src/auth/jwt-auth.guard';
 import { ApiCommonResponses, ApiCommonGetAllResponses, ApiCommonDeleteResponses } from 'src/Common/decorators/swagger-responses.decorator';
+import { Roles } from 'src/role/roles.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('loan-company-details')
@@ -19,7 +20,8 @@ export class LoanCompanyDetailController {
   ) { }
 
   
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Post()
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -42,7 +44,8 @@ export class LoanCompanyDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -52,7 +55,7 @@ export class LoanCompanyDetailController {
   @ApiQuery({ name: 'email_id', required: false, description: 'Return Based on company_mail_id' })
   @Get()
   @ApiCommonGetAllResponses()
-  async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
+  async findAll(@Query() queryParams: { limit?: number; page?: number }, @Res() res: any) {
     try {
       const getLoanCompany = await this.loanCompanyDetailService.findAll(queryParams);
       if (!_.isEmpty(getLoanCompany)) {
@@ -70,7 +73,8 @@ export class LoanCompanyDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Get(':id')
   @ApiCommonResponses()
@@ -90,7 +94,8 @@ export class LoanCompanyDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Patch(':id')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -114,7 +119,8 @@ export class LoanCompanyDetailController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Delete(':id')
   @ApiCommonDeleteResponses()

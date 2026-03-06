@@ -17,7 +17,10 @@ export class LoanDocCheckListService {
   }
 
   async findAll(params: any) {
-    const { limit = 10, skip = 0, loan_id} = params || {};
+    const { limit = 10, page = 1, loan_id} = params || {};
+    params.limit = Number(limit);
+    params.page = Number(page);
+    const skip = (page - 1) * limit;
 
     const where: FindOptionsWhere<LoanDocCheckList> = {};
 
@@ -28,7 +31,7 @@ export class LoanDocCheckListService {
     const [loanDocCheckList, count] = await this.loanDocCheckRepo.findAndCount({
       where,
       take: limit,
-      skip,
+      skip: skip,
       order: { id: 'DESC' },
       relations: ['loan'],
     });

@@ -40,7 +40,10 @@ export class UsersService {
   }
 
   async findAll(params: any) {
-    const { limit = 10, skip = 0, status , mobile_number, user_name, email_id} = params || {};
+    const { limit = 10, page = 1, status , mobile_number, user_name, email_id} = params || {};
+    params.limit = Number(limit);
+    params.page = Number(page);
+    const skip = (page - 1) * limit;
 
     let where: FindOptionsWhere<User> | FindOptionsWhere<User>[] = {};
 
@@ -78,16 +81,16 @@ export class UsersService {
     const [userList, count] = await this.userRepo.findAndCount({
       where,
       take: limit,
-      skip,
+      skip: skip,
       order: { user_id: 'DESC' }
     });
 
     return { userList, count };
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByUserId(user_id: string): Promise<User | null> {
     return await this.userRepo.findOne({ 
-      where: { email_id: email }
+      where: { user_id: user_id }
     });
   }
 

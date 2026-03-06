@@ -1,136 +1,29 @@
 import { CanActivate, ExecutionContext, UnauthorizedException, Injectable } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
-import { extractTokenFromHeaders } from '../utill/utill';
 import { AuthGuard } from '@nestjs/passport';
 import * as _ from 'lodash';
-
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor() {
-    super();
-  }
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = extractTokenFromHeaders(req.headers);
-    if (!token) {
-      throw new UnauthorizedException('Token not found');
-    }
-    try {
-        const secret = process.env.JWT_SECRET;
-            if (!secret) {
-                throw new Error('JWT_SECRET is not defined');
-            }
-      const decoded = jwt.verify(token, secret);
-      if (_.isEmpty(decoded)) {
-        throw new UnauthorizedException('Invalid token');
-      }
-      return true;
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
-}
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
-export class AdminGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = extractTokenFromHeaders(req.headers);
-    if (!token) {
-      throw new UnauthorizedException('Token not found');
-    }
-    try {
-        const secret = process.env.JWT_SECRET;
-            if (!secret) {
-                throw new Error('JWT_SECRET is not defined');
-            }
-      const decoded: any = jwt.verify(token, secret);
-      return decoded?.user_type === 'AD';
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
-}
+export class JwtAuthGuard extends AuthGuard('jwt') {}
 
 @Injectable()
-export class AgentGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = extractTokenFromHeaders(req.headers);
-    if (!token) {
-      throw new UnauthorizedException('Token not found');
-    }
-    try {
-        const secret = process.env.JWT_SECRET;
-            if (!secret) {
-                throw new Error('JWT_SECRET is not defined');
-            }
-      const decoded: any = jwt.verify(token, secret);
-      return decoded?.user_type === 'AT';
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
-}
+export class RolesGuard implements CanActivate {
 
-@Injectable()
-export class LegalUserGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = extractTokenFromHeaders(req.headers);
-    if (!token) {
-      throw new UnauthorizedException('Token not found');
-    }
-    try {
-        const secret = process.env.JWT_SECRET;
-            if (!secret) {
-                throw new Error('JWT_SECRET is not defined');
-            }
-      const decoded: any = jwt.verify(token, secret);
-      return decoded?.user_type === 'LU';
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
-}
+  constructor(private reflector: Reflector) {}
 
-@Injectable()
-export class LegalHeadGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = extractTokenFromHeaders(req.headers);
-    if (!token) {
-      throw new UnauthorizedException('Token not found');
-    }
-    try {
-        const secret = process.env.JWT_SECRET;
-            if (!secret) {
-                throw new Error('JWT_SECRET is not defined');
-            }
-      const decoded: any = jwt.verify(token, secret);
-      return decoded?.user_type === 'LH';
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
-}
+  canActivate(context: ExecutionContext): boolean {
 
-@Injectable()
-export class CivilUserGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = extractTokenFromHeaders(req.headers);
-    if (!token) {
-      throw new UnauthorizedException('Token not found');
+    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+
+    if (!roles) return true;
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    if (!user) {
+      throw new UnauthorizedException('User not found in request');
     }
-    try {
-        const secret = process.env.JWT_SECRET;
-            if (!secret) {
-                throw new Error('JWT_SECRET is not defined');
-            }
-      const decoded: any = jwt.verify(token, secret);
-      return decoded?.user_type === 'CU';
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
-    }
+
+    return roles.includes(user.user_type);
   }
 }

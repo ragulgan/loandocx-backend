@@ -4,10 +4,11 @@ import { CreateScreenDto } from './dto/create-screen.dto';
 import { UpdateScreenDto } from './dto/update-screen.dto';
 import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
-import { appConst } from '../libs/constant';
+import { appConst, USER_TYPE } from '../libs/constant';
 import * as _ from 'lodash';
-import { AdminGuard, JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard } from 'src/auth/jwt-auth.guard';
 import { ApiCommonResponses, ApiCommonGetAllResponses, ApiCommonDeleteResponses } from 'src/Common/decorators/swagger-responses.decorator';
+import { Roles } from 'src/role/roles.decorator';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('screens')
@@ -18,7 +19,8 @@ export class ScreenController {
     private readonly responseService: ResponseService,
   ) { }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Post()
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -50,7 +52,7 @@ export class ScreenController {
   @ApiQuery({ name: 'status', required: false, description: 'Return Based on status' })
   @Get()
   @ApiCommonGetAllResponses()
-  async findAll(@Query() queryParams: { limit?: number; skip?: number }, @Res() res: any) {
+  async findAll(@Query() queryParams: { limit?: number; page?: number }, @Res() res: any) {
     try {
       const getUser = await this.usersService.findAll(queryParams);
       if (!_.isEmpty(getUser)) {
@@ -68,7 +70,8 @@ export class ScreenController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Get(':id')
   @ApiCommonResponses()
@@ -88,7 +91,8 @@ export class ScreenController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Patch(':id')
   @ApiCommonResponses({ successStatus: 201, successDescription: 'Created' })
@@ -112,7 +116,8 @@ export class ScreenController {
     }
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(USER_TYPE.ADMIN)
   @ApiBearerAuth()
   @Delete(':id')
   @ApiCommonDeleteResponses()

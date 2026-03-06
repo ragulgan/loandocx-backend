@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from "./auth.service";
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './local.auth';
@@ -16,10 +17,17 @@ import { Screen } from 'src/screen/entities/screen.entity';
 @Module({
   imports: [
     PassportModule,
+    ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: 'mySecretKey123',
-      signOptions: { expiresIn: '5h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'), // Get secret key from env
+        signOptions: { 
+          expiresIn: configService.get<string>('JWT_EXPIRES') // Get expire time from env
+        },
+      }),
     }),
     TypeOrmModule.forFeature([User, Screen]),
     UsersModule,

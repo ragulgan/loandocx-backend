@@ -16,8 +16,9 @@ export class ProcessingFeesService {
     return await this.loanProcessingRepo.save(user);
   }
 
-  async findAll(params: { limit?: number; skip?: number; from_loan_amount?: number }) {
-    const { limit = 10, skip = 0, from_loan_amount } = params || {};
+  async findAll(params: { limit?: number; page?: number; from_loan_amount?: number }) {
+    const { limit = 10, page = 1, from_loan_amount } = params || {};
+    const skip = (page - 1) * limit;
 
     const where: FindOptionsWhere<LoanProcessingFees> = {};
 
@@ -28,7 +29,7 @@ export class ProcessingFeesService {
     const [loanProcessList, count] = await this.loanProcessingRepo.findAndCount({
       where,
       take: limit,
-      skip,
+      skip: skip,
       order: { id: 'DESC' },
     });
 
